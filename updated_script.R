@@ -93,6 +93,10 @@ la_crime$exectednum_crime <- round(expected(population = la_crime$total_populati
 la_crime <- la_crime[, c(2,1,3,4,5,6,7,8,9,11,12,10)]
 view(la_crime)
 
+# change 0 in expected number of crime to 1 because the log function doen't work with 0
+la_crime[la_crime$exectednum_crime == 0, "exectednum_crime"] <- 1
+view(la_crime)
+
 # coerce the dataframe into spatial object
 sp.object <- as(la_crime, "Spatial")
 
@@ -116,8 +120,10 @@ e <- la_crime$exectednum_crime
 stan.spatial.dataset <- list(N=n, N_edges=n_edges, node1=nod1, node2=nod2, Y=y, X=x, E=e)
 
 # use stan() to compile saved script
-icar_poisson_fit = stan("icar_poisson_model.stan", data=stan.spatial.dataset, iter=1000, chains=1, verbose = FALSE)
+icar_poisson_fit = stan("icar_poisson_model.stan", data=stan.spatial.dataset, iter=2000, chains=4, verbose = FALSE)
 
 # remove that annoying scientific notation
 options(scipen = 999)
 summary(icar_poisson_fit, pars=c("alpha", "beta", "sigma"), probs=c(0.025, 0.975))$summary
+
+summary(sp.object)
