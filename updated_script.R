@@ -80,8 +80,34 @@ lapd_pop_JENI <- merge(lapd_pop, JENI_driver,
 # we have to get the column of point of crimes in each polygon 
 # total number of crime in each zipcode
 lapd_pop_JENI$crime <- lengths(st_intersects(lapd_pop_JENI, crime))
-# check tge columns!
+# check the columns!
 view(lapd_pop_JENI)
+
+# Plot the crime count in LA
+# Create a base plot
+library(ggplot2)
+library(RColorBrewer)
+
+ggplot(lapd_pop_JENI) +
+  geom_sf(aes(fill = crime),
+          color = NA) +
+  coord_sf(datum = NA) +
+  scale_fill_viridis_c(alpha = 1,
+                       begin = 1,
+                       end = 0,
+                       option = "F") +
+  theme(panel.background = element_blank()) 
+
+pal <- rev(brewer.pal(7, "RdYlGn")) # we select 7 colors from the palette
+class(pal)
+plot(lapd_pop_JENI["crime"], 
+     main = "LA crime count in zipcode", 
+     breaks = "quantile", nbreaks = 7,
+     pal = pal)
+
+
+
+  
 
 # delete unwanted columns, such as the url, zip
 la_crime =subset(lapd_pop_JENI, select = -c(zip,tooltip,nla_url)) 
@@ -138,6 +164,7 @@ diagnostic.checks <- as.data.frame(summary(icar_poisson_fit, pars=c("alpha", "be
 diagnostic.checks$valid <- ifelse(diagnostic.checks$Rhat < 1.1, 1, 0)
 # tabulate it
 table(diagnostic.checks$valid)
+# everything is valid
 
 # show first 6 rows only instead of the full 307
 head(summary(icar_poisson_fit, pars=c("mu"), probs=c(0.025, 0.975))$summary)
