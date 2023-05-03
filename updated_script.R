@@ -235,7 +235,7 @@ rr_map <- tm_shape(la_crime) +
   tm_fill("RelativeRiskCat", style = "cat", title = "Relavtive Risk", palette = RRPalette, labels = RiskCategorylist) +
   tm_shape(lapd) + tm_polygons(alpha = 0.05) + 
   tm_layout(frame = FALSE, legend.outside = TRUE, legend.title.size = 0.8, legend.text.size = 0.7) +
-  tm_compass(position = c("right", "top")) + tm_scale_bar(position = c("right", "bottom"))
+  tm_compass(position = c("right", "top")) + tm_scale_bar(position = c("right", "0.1"))
 
 # map of significance regions
 sg_map <- tm_shape(la_crime) + 
@@ -243,7 +243,7 @@ sg_map <- tm_shape(la_crime) +
           palette = c("#33a6fe", "white", "#fe0000"), labels = c("Significantly low", "Not Significant", "Significantly high")) +
   tm_shape(lapd) + tm_polygons(col=NA, alpha = 0.10) +
   tm_layout(frame = FALSE, legend.outside = TRUE, legend.title.size = 0.9, legend.text.size = 0.6) +
-  tm_compass(position = c("right", "top")) + tm_scale_bar(position = c("right", "bottom"))
+  tm_compass(position = c("right", "top")) + tm_scale_bar(position = c("right", "0.1"))
 
 
 # create side-by-side plot
@@ -283,6 +283,7 @@ table(la_crime$ProbCat)
 # map of exceedance probabilities
 tm_shape(la_crime) + 
   tm_fill("ProbCat", style = "cat", title = "Probability", palette = "GnBu", labels = ProbCategorylist) +
-  tm_shape(lapd) + tm_polygons(alpha = 0.05, border.col = "black") + tm_text("name", size = "AREA") +
+  tm_shape(lapd) + tm_polygons(alpha = 0.05, border.col = "black") + 
   tm_layout(frame = FALSE, legend.outside = TRUE, legend.title.size = 0.8, legend.text.size = 0.7) +
-  tm_compass(position = c("right", "top")) + tm_scale_bar(position = c("right", "bottom"))
+  tm_compass(position = c("right", "top")) + tm_scale_bar(position = c("left", "bottom"))
+  
