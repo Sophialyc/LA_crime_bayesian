@@ -248,3 +248,41 @@ sg_map <- tm_shape(la_crime) +
 
 # create side-by-side plot
 tmap_arrange(rr_map, sg_map, ncol = 2, nrow = 1)
+
+# extract the exceedence probabilities from the icar_possion_fit object
+# compute the probability that an area has a relative risk ratio > 1.0
+threshold <- function(x){mean(x > 1.00)}
+excProbrr <- icar_poisson_fit %>% spread_draws(mu[i]) %>% 
+  group_by(i) %>% summarise(mu=threshold(mu)) %>%
+  pull(mu)
+
+# insert the exceedance values into the spatial data frame
+la_crime$excProb <- excProbrr
+
+# create the labels for the probabilities
+ProbCategorylist <- c("<0.01", "0.01-0.09", "0.10-0.19", "0.20-0.29", "0.30-0.39", "0.40-0.49","0.50-0.59", "0.60-0.69", "0.70-0.79", "0.80-0.89", "0.90-0.99", "1.00")
+
+# categorising the probabilities in bands of 10s
+la_crime$ProbCat <- NA
+la_crime$ProbCat[la_crime$excProb>=0 & la_crime$excProb< 0.01] <- 1
+la_crime$ProbCat[la_crime$excProb>=0.01 & la_crime$excProb< 0.10] <- 2
+la_crime$ProbCat[la_crime$excProb>=0.10 & la_crime$excProb< 0.20] <- 3
+la_crime$ProbCat[la_crime$excProb>=0.20 & la_crime$excProb< 0.30] <- 4
+la_crime$ProbCat[la_crime$excProb>=0.30 & la_crime$excProb< 0.40] <- 5
+la_crime$ProbCat[la_crime$excProb>=0.40 & la_crime$excProb< 0.50] <- 6
+la_crime$ProbCat[la_crime$excProb>=0.50 & la_crime$excProb< 0.60] <- 7
+la_crime$ProbCat[la_crime$excProb>=0.60 & la_crime$excProb< 0.70] <- 8
+la_crime$ProbCat[la_crime$excProb>=0.70 & la_crime$excProb< 0.80] <- 9
+la_crime$ProbCat[la_crime$excProb>=0.80 & la_crime$excProb< 0.90] <- 10
+la_crime$ProbCat[la_crime$excProb>=0.90 & la_crime$excProb< 1.00] <- 11
+la_crime$ProbCat[la_crime$excProb == 1.00] <- 12
+
+# check to see if legend scheme is balanced
+table(la_crime$ProbCat)
+
+# map of exceedance probabilities
+tm_shape(la_crime) + 
+  tm_fill("ProbCat", style = "cat", title = "Probability", palette = "GnBu", labels = ProbCategorylist) +
+  tm_shape(lapd) + tm_polygons(alpha = 0.05, border.col = "black") + tm_text("name", size = "AREA") +
+  tm_layout(frame = FALSE, legend.outside = TRUE, legend.title.size = 0.8, legend.text.size = 0.7) +
+  tm_compass(position = c("right", "top")) + tm_scale_bar(position = c("right", "bottom"))
